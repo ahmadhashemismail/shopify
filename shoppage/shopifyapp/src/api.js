@@ -1,5 +1,5 @@
 
-const BASE_URL = '/api'
+const BASE_URL = 'https://shopify-server-oyma.onrender.com/api'
 
 async function handleResponse(res) {
   if (!res.ok) {
