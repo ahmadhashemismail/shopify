@@ -8,13 +8,15 @@ const PORT = process.env.PORT || 3000
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
 
+// Test route to verify server status
+app.get('/', (req, res) => {
+  res.send('Server is up and running!')
+})
+
 // =========================================================
 // PRODUCTS (admin)
 // =========================================================
-// Test route to verify server is responding
-app.get('/', (req, res) => {
-  res.send('Server is up and running!');
-});
+
 // GET all products
 app.get('/api/admin', async (req, res) => {
   try {
@@ -197,60 +199,59 @@ app.delete('/api/categories/:id', async (req, res) => {
   }
 })
 
-
-//---------------------------users------------------------------
-
-// GET all users
+// =========================================================
+// USERS
+// =========================================================
 
 app.post("/api/users/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body
     const result = await pool.query(
-      "select id, full_name, email, password from users where email=$1",
+      "SELECT id, full_name, email, password FROM users WHERE email=$1",
       [email]
-    );
+    )
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Invalid email or password." });
+      return res.status(401).json({ error: "Invalid email or password." })
     }
-    const account = result.rows[0];
+    const account = result.rows[0]
     if (account.password !== password) {
-      return res.status(401).json({ error: "Invalid email or password." });
+      return res.status(401).json({ error: "Invalid email or password." })
     }
-    res.json({ id: account.id, name: account.full_name, email: account.email });
+    res.json({ id: account.id, name: account.full_name, email: account.email })
   } catch (error) {
-    console.error("Error logging in:", error);
-    res.status(500).json({ error: error.message });
+    console.error("Error logging in:", error)
+    res.status(500).json({ error: error.message })
   }
-});
+})
 
 app.post("/api/users/register", async (req, res) => {
   try {
-    const { full_name, email, password } = req.body;
+    const { full_name, email, password } = req.body
     if (!full_name || !email || !password) {
-      return res.status(400).json({ error: "All fields are required." });
+      return res.status(400).json({ error: "All fields are required." })
     }
     const existing = await pool.query(
-      "select id from users where email=$1",
+      "SELECT id FROM users WHERE email=$1",
       [email]
-    );
+    )
     if (existing.rows.length > 0) {
-      return res.status(409).json({ error: "Email already exists." });
+      return res.status(409).json({ error: "Email already exists." })
     }
     const result = await pool.query(
-      "insert into users (full_name, email, password) values ($1, $2, $3) returning *",
+      "INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3) RETURNING *",
       [full_name, email, password]
-    );
-    res.status(201).json(result.rows[0]);
+    )
+    res.status(201).json(result.rows[0])
   } catch (error) {
-    console.error("Error registering account:", error);
-    res.status(500).json({ error: error.message });
+    console.error("Error registering account:", error)
+    res.status(500).json({ error: error.message })
   }
-});
+})
 
 app.put('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { full_name, email, password ,uimg} = req.body
+    const { full_name, email, password, uimg } = req.body
 
     const result = await pool.query(
       `UPDATE users
@@ -271,7 +272,6 @@ app.put('/api/users/:id', async (req, res) => {
   }
 })
 
-
 app.delete('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params
@@ -288,9 +288,10 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 })
 
-//---------------------cart_items-----------------------------
+// =========================================================
+// CART ITEMS
+// =========================================================
 
-// GET all cart items 
 app.get('/api/cart_items', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM cart_items ORDER BY id')
