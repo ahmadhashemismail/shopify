@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import pool from './db.js'
-import './setup.js' 
+
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -11,7 +11,10 @@ app.use(express.json({ limit: '10mb' }))
 // =========================================================
 // PRODUCTS (admin)
 // =========================================================
-
+// Test route to verify server is responding
+app.get('/', (req, res) => {
+  res.send('Server is up and running!');
+});
 // GET all products
 app.get('/api/admin', async (req, res) => {
   try {
